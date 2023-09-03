@@ -8,7 +8,7 @@ import {
 import Checkbox from "expo-checkbox";
 import { useState } from "react";
 
-export default function SignUp() {
+export default function SignUp({ navigation }) {
   const [email, setEmail] = useState("");
   const [pwd, setPwd] = useState("");
   const [cpwd, setCpwd] = useState("");
@@ -103,9 +103,14 @@ export default function SignUp() {
           <TouchableOpacity style={styles.signupbox} onPress={onSignup}>
             <Text style={styles.signUp}>Sign Up</Text>
           </TouchableOpacity>
-          <Text style={styles.alreadyHaveAnAccount}>
-            Already have an account.
-          </Text>
+          <TouchableOpacity>
+            <Text
+              style={styles.alreadyHaveAnAccount}
+              onPress={() => navigation.navigate("login")}
+            >
+              Already have an account.
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -136,8 +141,8 @@ const styles = StyleSheet.create({
   topvector: {
     width: "100%",
     height: "25%",
-    justifyContent:'center',
-    alignItems:'center',
+    justifyContent: "center",
+    alignItems: "center",
     position: "relative",
     borderTopLeftRadius: 0,
     borderTopRightRadius: 0,
