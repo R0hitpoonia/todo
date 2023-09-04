@@ -6,13 +6,27 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useState } from "react";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase";
+import Home from "./home";
+import { authErrors } from "./errors";
 
 export default function LogIn({ navigation }) {
   const [email, setEmail] = useState("");
   const [pwd, setPwd] = useState("");
 
   const onLogIn = () => {
-    navigation.navigate("home");
+    signInWithEmailAndPassword(auth, email, pwd)
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+        const ue = user.email;
+        navigation.navigate("home", ue);
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        alert(authErrors[errorCode]);
+      });
   };
 
   return (
@@ -83,8 +97,7 @@ const styles = StyleSheet.create({
   text: {
     width: "100%",
     height: "100%",
-    left: 5,
-    top: 5,
+    left: 10,
   },
   bgColor: {
     width: "100%",
