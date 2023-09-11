@@ -7,8 +7,12 @@ import {
 } from "react-native";
 import Checkbox from "expo-checkbox";
 import { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import Home from "./home";
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  currentUser,
+} from "firebase/auth";
+
 import { auth } from "../firebase";
 import { authErrors } from "./errors";
 
@@ -18,6 +22,11 @@ export default function SignUp({ navigation }) {
   const [cpwd, setCpwd] = useState("");
   const [validemail, setValidemail] = useState(false);
   const [isSelected, setSelection] = useState(false);
+  const [user, setUser] = useState({});
+
+  onAuthStateChanged(auth, (currentUser) => {
+    setUser(currentUser.uid);
+  });
 
   const onSignup = () => {
     const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -31,18 +40,19 @@ export default function SignUp({ navigation }) {
       else if (!(pwd === cpwd)) alert("Passwords do not match");
       else if (!isSelected) alert("Please accept terms and conditions!");
       else {
-        createUserWithEmailAndPassword(auth, email, pwd)
-          .then((userCredential) => {
-            // Signed in
-            const user = userCredential.user;
-            const ue = user.email;
-            navigation.navigate("home", ue);
-          })
-          .catch((error) => {
-            const errorCode = error.code;
-            alert(authErrors[errorCode]);
-          });
+        try {
+          createUserWithEmailAndPassword(auth, email, pwd);
+        } catch (error) {
+          const errorCode = error.code;
+          alert(authErrors[errorCode]);
+        }
       }
+    }
+  };
+  const userExist = () => {
+    if (!user) {
+      const ui = user.uid;
+      navigation.navigate("home", ui);
     }
   };
 

@@ -5,8 +5,12 @@ import {
   TextInput,
   TouchableOpacity,
 } from "react-native";
-import { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { useEffect, useState } from "react";
+import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  currentUser,
+} from "firebase/auth";
 import { auth } from "../firebase";
 import Home from "./home";
 import { authErrors } from "./errors";
@@ -14,19 +18,28 @@ import { authErrors } from "./errors";
 export default function LogIn({ navigation }) {
   const [email, setEmail] = useState("");
   const [pwd, setPwd] = useState("");
+  const [user, setUser] = useState({});
+
+  useEffect(() => {
+    if (user) {
+      if (user.uid) {
+        const uid = user.uid;
+        navigation.navigate("home", uid);
+      }
+    }
+  }, [user]);
+
+  onAuthStateChanged(auth, (currentUser) => {
+    setUser(currentUser);
+  });
 
   const onLogIn = () => {
-    signInWithEmailAndPassword(auth, email, pwd)
-      .then((userCredential) => {
-        // Signed in
-        const user = userCredential.user;
-        const ue = user.email;
-        navigation.navigate("home", ue);
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        alert(authErrors[errorCode]);
-      });
+    try {
+      signInWithEmailAndPassword(auth, email, pwd);
+    } catch (error) {
+      const errorCode = error.code;
+      alert(authErrors[errorCode]);
+    }
   };
 
   return (
