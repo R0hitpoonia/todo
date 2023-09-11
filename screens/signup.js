@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import Checkbox from "expo-checkbox";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
@@ -15,6 +15,7 @@ import {
 
 import { auth } from "../firebase";
 import { authErrors } from "./errors";
+import { addbasicdata } from "../assets/dryrun/addData";
 
 export default function SignUp({ navigation }) {
   const [email, setEmail] = useState("");
@@ -24,8 +25,20 @@ export default function SignUp({ navigation }) {
   const [isSelected, setSelection] = useState(false);
   const [user, setUser] = useState({});
 
-  onAuthStateChanged(auth, (currentUser) => {
+  useEffect(() => {
+    if (user) {
+      if (user.uid) {
+        const uid = user.uid;
+        addbasicdata(uid);
+        navigation.navigate("home", uid);
+      }
+    }
+  }, [user]);
+
+  auth.onAuthStateChanged((currentUser) => {
     setUser(currentUser.uid);
+    console.log("signup onauthchange");
+    // navigation.navigate('home', user)
   });
 
   const onSignup = () => {
@@ -41,7 +54,12 @@ export default function SignUp({ navigation }) {
       else if (!isSelected) alert("Please accept terms and conditions!");
       else {
         try {
-          createUserWithEmailAndPassword(auth, email, pwd);
+          createUserWithEmailAndPassword(auth, email, pwd).then(
+            (userCredential) => {
+              const uid = userCredential.user.uid;
+              addbasicdata(uid);
+            }
+          );
         } catch (error) {
           const errorCode = error.code;
           alert(authErrors[errorCode]);

@@ -29,8 +29,9 @@ export default function LogIn({ navigation }) {
     }
   }, [user]);
 
-  onAuthStateChanged(auth, (currentUser) => {
+  auth.onAuthStateChanged((currentUser) => {
     setUser(currentUser);
+    console.log("login Onauthchange");
   });
 
   const onLogIn = () => {

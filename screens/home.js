@@ -16,8 +16,7 @@ import { auth, db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { signOut } from "firebase/auth";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { tasks } from "../assets/dryrun/tasks";
-import { projects } from "../assets/dryrun/projects";
+import { addbasicdata } from "../assets/dryrun/addData";
 
 const Home = ({ route, navigation }) => {
   const user = route.params;
@@ -28,14 +27,20 @@ const Home = ({ route, navigation }) => {
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      console.log("Document data:", docSnap.data());
+      // console.log("Document data:", docSnap.data());
       const td = docSnap.data();
       setData(td);
+      console.log(td.tasks);
     } else {
       // docSnap.data() will be undefined in this case
       console.log("No such document!");
     }
   };
+
+  useEffect(() => {
+    getdata();
+    return () => {};
+  }, []);
 
   const logOut = () => {
     signOut(auth);
@@ -49,10 +54,10 @@ const Home = ({ route, navigation }) => {
         <TouchableOpacity
           style={{ width: 30, marginBottom: 15, marginLeft: 20, marginTop: 10 }}
           onPress={() => {
-            alert("menu");
+            logOut();
           }}
         >
-          <Icon name="bars" size={30} />
+          <Icon name="sign-out" size={30} />
         </TouchableOpacity>
 
         <View style={style.profileWrapper}>
@@ -74,12 +79,17 @@ const Home = ({ route, navigation }) => {
       <View style={style.todayTaskWrapper}>
         <View style={style.todayTaskTextWrapper}>
           <Text style={style.todaysTaskText}> Today’s Task </Text>
-          <View style={style.iconOut}>
+          <TouchableOpacity
+            style={style.iconOut}
+            onPress={() => {
+              alert("add task is under construction");
+            }}
+          >
             <Icon name="plus" color="#fff" size={20} />
-          </View>
+          </TouchableOpacity>
         </View>
         <ScrollView showsVerticalScrollIndicator={false} style={style.viewTask}>
-          {tasks?.map((task) => {
+          {data.tasks?.map((task) => {
             return (
               <View key={task.id} style={style.todocard}>
                 {task.isDone ? (
@@ -96,20 +106,25 @@ const Home = ({ route, navigation }) => {
       <View>
         <View style={style.todayTaskTextWrapper}>
           <Text style={style.todaysTaskText}> Projects </Text>
-          <View style={style.iconOut}>
+          <TouchableOpacity
+            style={style.iconOut}
+            onPress={() => {
+              alert("add projects is under construction");
+            }}
+          >
             <Icon name="plus" color="#fff" size={20} />
-          </View>
+          </TouchableOpacity>
         </View>
         <ScrollView
           showsVerticalScrollIndicator={false}
           style={style.projectScroll}
           horizontal={true}
         >
-          {projects?.map((p) => {
+          {data.projects?.map((p) => {
             return (
               <Card key={p.id} containerStyle={style.projectCard}>
                 <Card.Title style={{ color: "#FFF9EC" }}>{p.title}</Card.Title>
-                <View style={{height:60}}>
+                <View style={{ height: 60 }}>
                   <Text
                     numberOfLines={3}
                     style={{ marginLeft: 10, width: 120 }}
